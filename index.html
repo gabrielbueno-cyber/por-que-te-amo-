@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feliz 14, mi amor</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0F3D2E;font-family:Georgia,serif;color:#F4EBDD;height:100vh;overflow:hidden}
+  #cargando{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#C9E4D4;transition:opacity 1s}
+  #escena{position:fixed;inset:0}
+  .foto{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.5s ease}
+  .foto.on{opacity:1;animation:zoom 5s ease-out forwards}
+  @keyframes zoom{from{transform:scale(1)}to{transform:scale(1.12)}}
+  .sombra{position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(10,40,30,.85))}
+  #texto{position:absolute;bottom:12%;left:0;right:0;text-align:center;padding:0 28px;font-size:28px;line-height:1.4;text-shadow:0 2px 10px rgba(0,0,0,.6);opacity:0;transform:translateY(20px);transition:all 1s ease}
+  #texto.on{opacity:1;transform:translateY(0)}
+  #final{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#0F3D2E;padding:24px;z-index:2}
+  #final h2{font-size:40px;margin:16px 0}
+  #final p{color:#C9E4D4;font-size:20px}
+  .btn{background:#BFDDF7;color:#0C2E4F;border:none;padding:14px 28px;border-radius:30px;font-size:17px;font-family:inherit;cursor:pointer;margin-top:30px}
+  .corazon{position:fixed;bottom:-40px;pointer-events:none;animation:sube linear forwards;z-index:3}
+  @keyframes sube{to{transform:translateY(-110vh) rotate(25deg);opacity:0}}
+  #barra{position:fixed;top:0;left:0;height:4px;background:#7FB8F0;width:0;z-index:4}
+</style>
+</head>
+<body>
+
+<div id="cargando">Preparando algo para ti 💙</div>
+
+<div id="escena">
+  <div id="capa"></div>
+  <div class="sombra"></div>
+  <div id="texto"></div>
+  <div id="final">
+    <div style="font-size:60px;color:#5DA9E9">♥</div>
+    <h2>Te AMOOOOOOO muchísimo</h2>
+    <p>Que vengan muchos 14 más, todos contigo</p>
+    <button class="btn" onclick="reproducir()">Ver de nuevo</button>
+  </div>
+</div>
+<div id="barra"></div>
+
+<script>
+  const fotos = ["1.jpeg","2.jpeg","3.jpeg","4.jpeg","5.jpeg"];
+  const textos = [
+    "Feliz 14, mi amor 💙",
+    "Gracias por tus caritas locas…",
+    "…por lo hermosa que eres…",
+    "…y por hacerme sonreír así todos los días.",
+    "Desde que te conocí, todo ha sido más bonito 💙"
+  ];
+  const azules = ["#5DA9E9","#3B82D6","#8EC5F5","#2F6DB5"];
+  const DURACION = 5000;
+  let timers = [], lluvia;
+
+  // Precarga las fotos y luego arranca solo
+  let listas = 0;
+  fotos.forEach(src => {
+    const img = new Image();
+    img.onload = img.onerror = () => { if (++listas === fotos.length) empezar(); };
+    img.src = src;
+  });
+
+  function empezar(){
+    const c = document.getElementById('cargando');
+    c.style.opacity = 0;
+    setTimeout(() => { c.remove(); reproducir(); }, 1000);
+  }
+
+  function corazon(){
+    const c = document.createElement('div');
+    c.className = 'corazon';
+    c.textContent = '♥';
+    c.style.color = azules[Math.floor(Math.random() * azules.length)];
+    c.style.left = Math.random() * 95 + 'vw';
+    c.style.fontSize = (16 + Math.random() * 22) + 'px';
+    c.style.animationDuration = (6 + Math.random() * 4) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 10000);
+  }
+
+  function reproducir(){
+    timers.forEach(clearTimeout); timers = []; clearInterval(lluvia);
+    document.getElementById('final').style.display = 'none';
+    const capa = document.getElementById('capa');
+    capa.innerHTML = '';
+    const divs = fotos.map(u => {
+      const d = document.createElement('div');
+      d.className = 'foto';
+      d.style.backgroundImage = `url(${u})`;
+      capa.appendChild(d);
+      return d;
+    });
+    const texto = document.getElementById('texto');
+    const barra = document.getElementById('barra');
+    const total = divs.length + 1;
+    lluvia = setInterval(corazon, 450);
+
+    divs.forEach((d, i) => {
+      timers.push(setTimeout(() => {
+        divs.forEach(x => x.classList.remove('on'));
+        d.classList.add('on');
+        texto.classList.remove('on');
+        timers.push(setTimeout(() => {
+          texto.textContent = textos[i] || "";
+          texto.classList.add('on');
+        }, 700));
+        barra.style.transition = 'none';
+        barra.style.width = (i / total * 100) + '%';
+        requestAnimationFrame(() => {
+          barra.style.transition = `width ${DURACION}ms linear`;
+          barra.style.width = ((i + 1) / total * 100) + '%';
+        });
+      }, i * DURACION));
+    });
+
+    timers.push(setTimeout(() => {
+      texto.classList.remove('on');
+      document.getElementById('final').style.display = 'flex';
+      barra.style.width = '100%';
+    }, divs.length * DURACION));
+  }
+</script>
+</body>
+</html>
